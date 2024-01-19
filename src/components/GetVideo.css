@@ -1,0 +1,10 @@
+.transcription-input-container {
+  min-height: 20rem;
+  max-width: 20rem;
+  border: 1px solid #8b5cf6;
+}
+
+.input-video {
+  background-color: #8b5cf6;
+  color: white;
+}
