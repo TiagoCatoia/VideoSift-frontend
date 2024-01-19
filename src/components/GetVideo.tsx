@@ -1,19 +1,13 @@
-import { useState } from "react";
-
 import "./GetVideo.css";
 
 const GetVideo = () => {
-  const [videoPath, setVideoPath] = useState(null);
-
   return (
     <>
-      <div className="transcription-input-container">
-        <input
-          className="input-video"
-          placeholder="http://video"
-          type="file"
-        ></input>
-        <button className="btn-load-video">Load Video</button>
+      <div className="upload-video-container">
+        <ul className="load-options">
+          <li className="options-url-upload">URL</li>
+          <li className="options-url-upload">Upload Video</li>
+        </ul>
       </div>
     </>
   );

@@ -1,10 +1,31 @@
-.transcription-input-container {
-  min-height: 20rem;
-  max-width: 20rem;
-  border: 1px solid #8b5cf6;
+@import url("colors.css");
+
+.upload-video-container {
+    color: var(--black);
+    width: 50%;
+    height: 75%;
+    margin: 10px;
+    border-radius: 10px;
+    background: white
 }
 
-.input-video {
-  background-color: #8b5cf6;
-  color: white;
+.load-options {
+    display: flex;
+    justify-content: space-evenly;
+    border-radius: 10px;
+}
+
+.options-url-upload {
+    list-style: none;
+    padding: 10px;
+    color: var(--blue);
+    cursor: default;
+    width: 100%;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.options-url-upload:hover {
+    list-style: none;
+    border-radius: 10px;
 }

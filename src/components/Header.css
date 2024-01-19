@@ -1,0 +1,18 @@
+@import url("colors.css");
+
+.headerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: var(--black);
+    margin-left: 10px;
+    padding: 16px;
+}
+
+.mainTitle {
+    font-size: 2rem;
+    padding: 7px;
+}
+.description-text-app {
+    padding: 7px;
+}

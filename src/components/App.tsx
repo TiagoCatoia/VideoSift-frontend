@@ -1,14 +1,14 @@
 import "./App.css";
 
 import GetVideo from "./GetVideo";
+import Header from "./Header.tsx";
 
 function App() {
   return (
-    <div className="app-container">
-      <div>
-        <GetVideo />
-      </div>
-    </div>
+    <>
+      <Header />
+      <GetVideo />
+    </>
   );
 }
 
