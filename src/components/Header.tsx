@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import "./Header.css";
 
 const Header = () => {
@@ -20,3 +21,19 @@ const Header = () => {
 };
 
 export default Header;
+=======
+import "./Header.css"
+
+const Header = () => {
+    return (
+        <>
+            <div className="headerContainer">
+                <h1 className="mainTitle">VideoSift</h1>
+                <p className="description-text-app">Resumo e Classificação de videos com IA</p>
+            </div>
+        </>
+    );
+}
+
+export default Header;
+>>>>>>> e218fc72a64e6b9b1a504700b4ffc9ce1f54a667

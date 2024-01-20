@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url("colors.css");
 
 .upload-video-container {
@@ -58,3 +59,36 @@
   border: 0.15rem solid var(--background);
   color: rgba(68, 68, 68, 0.24);
 }
+=======
+@import url("colors.css");
+
+.upload-video-container {
+    color: var(--black);
+    width: 50%;
+    height: 75%;
+    margin: 10px;
+    border-radius: 10px;
+    background: white
+}
+
+.load-options {
+    display: flex;
+    justify-content: space-evenly;
+    border-radius: 10px;
+}
+
+.options-url-upload {
+    list-style: none;
+    padding: 10px;
+    color: var(--blue);
+    cursor: default;
+    width: 100%;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.options-url-upload:hover {
+    list-style: none;
+    border-radius: 10px;
+}
+>>>>>>> e218fc72a64e6b9b1a504700b4ffc9ce1f54a667

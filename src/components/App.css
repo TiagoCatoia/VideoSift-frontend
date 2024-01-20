@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url("colors.css");
 
 * {
@@ -22,3 +23,18 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
+=======
+@import url("colors.css");
+
+* {
+  margin: 0%;
+  padding: 0%;
+}
+
+#root, html, body{
+  height: 100vh;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: rgb(48, 49, 49);
+  background-color: var(--background)
+}
+>>>>>>> e218fc72a64e6b9b1a504700b4ffc9ce1f54a667
