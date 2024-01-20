@@ -12,7 +12,6 @@
   display: flex;
   justify-content: space-evenly;
   border-radius: 10px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .options-url-upload {
@@ -49,7 +48,6 @@
   padding: 1rem;
   padding-left: 2.5rem;
   color: var(--black);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
 }
@@ -57,4 +55,11 @@
 .separator {
   border: 0.15rem solid var(--background);
   color: rgba(68, 68, 68, 0.24);
+}
+
+.chosen-option-container {
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  color: var(--black);
 }

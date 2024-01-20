@@ -9,7 +9,7 @@
 html,
 body {
   height: 100vh;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--black);
   background-color: var(--background);
 }

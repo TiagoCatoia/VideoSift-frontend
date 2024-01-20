@@ -9,7 +9,6 @@ function App() {
       <Header />
       <div className="main-content-container">
         <GetVideo />
-        <GetVideo />
       </div>
     </>
   );

@@ -12,7 +12,6 @@
 
 .main-title-container {
   display: flex;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .main-title {
@@ -22,6 +21,5 @@
 }
 .description-text-app {
   padding-inline: 0.5rem;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1.1rem;
 }

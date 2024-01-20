@@ -1,0 +1,6 @@
+.btn-load-video {
+    height: 3rem;
+    width: 3rem;
+    background: (--black);
+    color: white;
+}
