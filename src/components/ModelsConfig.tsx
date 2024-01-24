@@ -120,13 +120,6 @@ const ConfigAiModels = () => {
           >
             GPT-3
           </ButtonOptions>
-          {popoverVisible === "gpt-3" && (
-            <Popover
-              onClick={handleSizeClick}
-              modelName="gpt-3"
-              modelType="ai"
-            ></Popover>
-          )}
           <ButtonOptions
             onClick={() => handleAiModelToggle("bard")}
             isSelected={
