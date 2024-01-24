@@ -21,8 +21,8 @@ const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 800, // Largura da janela em pixels
-    height: 600, // Altura da janela em pixels
+    width: 1000, // Largura da janela em pixels
+    height: 700, // Altura da janela em pixels
     resizable: false, // Impede o redimensionamento da janela
     autoHideMenuBar: true, // Oculta a barra de menus
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
