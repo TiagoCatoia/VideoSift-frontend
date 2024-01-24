@@ -1,0 +1,43 @@
+.transcription-ia-container {
+  min-height: 10rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: column;
+  font-size: 1.2rem;
+}
+
+.transcription-options,
+.ai-options {
+  text-align: center;
+  width: 100%;
+  border-radius: 0.3rem;
+  display: flex;
+  justify-content: space-evenly;
+  position: relative;
+}
+
+.btn-config {
+  min-height: 2.5rem;
+  width: 10rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background-color: white;
+  color: var(--gray);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-config:hover {
+  border-radius: 0.3rem;
+  background-color: var(--background-hover);
+  color: var(--blue-light);
+  cursor: pointer;
+}
+
+.separator {
+  border: 0.15rem solid var(--background);
+  color: rgba(68, 68, 68, 0.24);
+  margin: 0.5rem 0;
+}
