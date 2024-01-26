@@ -5,19 +5,18 @@ import HorizontalLine from "./HorizontalLine";
 import Popover from "./Popover";
 import Input from "./Input";
 import LoadConfigButton from "./LoadConfigButton";
-// import { Toaster, toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
 import "./ModelsConfig.css";
-// import { toast, Toaster } from "sonner";
 
 type AiModel = {
-  modelAi: string;
-  modelAiSize?: string;
+  modelName: string;
+  modelSize?: string;
 };
 
 type TranscriptionModel = {
-  modelTranscription: string;
-  modelTranscriptionSize?: string;
+  modelName: string;
+  modelSize?: string;
 };
 
 const ConfigAiModels = ({ option }: { option: string }) => {
@@ -30,43 +29,43 @@ const ConfigAiModels = ({ option }: { option: string }) => {
 
   const [popoverVisible, setPopoverVisible] = useState<string | false>(false);
 
-  const [inputValueVideo, setInputValueVideo] = useState<string>("");
+  const [inputValueVideoPath, setInputValueVideoPath] = useState<string>("");
   const [inputValueKey, setInputValueKey] = useState<string>("");
 
-  const modelsRequiringSize: string[] = ["gpt-3", "whisper"];
+  const modelsRequiringSize: string[] = ["whisper"];
 
   const handleAiModelToggle = (newSelected: string) => {
     setSelectedAiModels((prevSelectedModels) => {
-      if ("modelAi" in prevSelectedModels) {
-        prevSelectedModels.modelAi === newSelected
+      if ("modelName" in prevSelectedModels) {
+        prevSelectedModels.modelName === newSelected
           ? (setPopoverVisible(false), (prevSelectedModels = {}))
           : (setPopoverVisible(false),
             modelsRequiringSize.includes(newSelected) &&
               setPopoverVisible(newSelected),
-            (prevSelectedModels = { modelAi: newSelected }));
+            (prevSelectedModels = { modelName: newSelected }));
         return prevSelectedModels;
       } else {
         modelsRequiringSize.includes(newSelected) &&
           setPopoverVisible(newSelected);
-        return { modelAi: newSelected };
+        return { modelName: newSelected };
       }
     });
   };
 
   const handleTranscriptionModelToggle = (newSelected: string) => {
     setSelectedTranscriptionModels((prevSelectedModels) => {
-      if ("modelTranscription" in prevSelectedModels) {
-        prevSelectedModels.modelTranscription === newSelected
+      if ("modelName" in prevSelectedModels) {
+        prevSelectedModels.modelName === newSelected
           ? (setPopoverVisible(false), (prevSelectedModels = {}))
           : (setPopoverVisible(false),
             modelsRequiringSize.includes(newSelected) &&
               setPopoverVisible(newSelected),
-            (prevSelectedModels = { modelTranscription: newSelected }));
+            (prevSelectedModels = { modelName: newSelected }));
         return prevSelectedModels;
       } else {
         modelsRequiringSize.includes(newSelected) &&
           setPopoverVisible(newSelected);
-        return { modelTranscription: newSelected };
+        return { modelName: newSelected };
       }
     });
   };
@@ -86,15 +85,15 @@ const ConfigAiModels = ({ option }: { option: string }) => {
     modelType: string
   ) => {
     if (modelType === "ai") {
-      if ("modelAi" in selectedAiModels) {
-        selectedAiModels.modelAi === modelName
-          ? ((selectedAiModels.modelAiSize = size), setPopoverVisible(false))
+      if ("modelName" in selectedAiModels) {
+        selectedAiModels.modelName === modelName
+          ? ((selectedAiModels.modelSize = size), setPopoverVisible(false))
           : null;
       }
     } else {
-      if ("modelTranscription" in selectedTranscriptionModels) {
-        selectedTranscriptionModels.modelTranscription === modelName
-          ? ((selectedTranscriptionModels.modelTranscriptionSize = size),
+      if ("modelName" in selectedTranscriptionModels) {
+        selectedTranscriptionModels.modelName === modelName
+          ? ((selectedTranscriptionModels.modelSize = size),
             setPopoverVisible(false))
           : null;
       }
@@ -108,37 +107,48 @@ const ConfigAiModels = ({ option }: { option: string }) => {
     if (option === "key") {
       setInputValueKey(e.target.value);
     } else {
-      setInputValueVideo(e.target.value);
+      setInputValueVideoPath(e.target.value);
     }
   };
 
-  const testEmptyValueState = (state: string) => !state;
-
-  const testEmptyValueObject = (obj: {} | AiModel | TranscriptionModel) => {
-    return (
-      Object.entries(obj).length === 0 ||
-      Object.values(obj).some((value) => !value)
-    );
+  const testObjectEmpty = (obj: {} | AiModel | TranscriptionModel) => {
+    if ("modelName" in obj) {
+      return modelsRequiringSize.includes(obj.modelName)
+        ? !obj.modelSize
+        : false;
+    } else {
+      return true;
+    }
   };
 
   const handleLoadConfigClick = () => {
-    if (
-      testEmptyValueState(inputValueVideo) ||
-      testEmptyValueState(inputValueKey) ||
-      testEmptyValueState(textProcessingOption) ||
-      testEmptyValueObject(selectedAiModels) ||
-      testEmptyValueObject(selectedTranscriptionModels)
-    ) {
-      console.log("erro");
+    if (!inputValueVideoPath) {
+      toast.error("Video path is not provided");
+    } else if (testObjectEmpty(selectedTranscriptionModels)) {
+      if ("modelName" in selectedTranscriptionModels) {
+        toast.error("Transcription model 'Size' is not provided");
+      } else {
+        toast.error("Transcription model is not provided");
+      }
+    } else if (testObjectEmpty(selectedAiModels)) {
+      if ("modelName" in selectedAiModels) {
+        toast.error("AI model 'Size' is not provided");
+      } else {
+        toast.error("AI model is not provided");
+      }
+    } else if (!textProcessingOption) {
+      toast.error("Text processing option not specified");
+    } else if (!inputValueKey) {
+      toast.error("Missing API key for authentication");
     } else {
       const config = {
-        inputValueVideo,
+        inputValueVideoPath,
         selectedAiModels,
         selectedTranscriptionModels,
         textProcessingOption,
         inputValueKey,
       };
-      // toast("My first toast");
+      toast.success("Success loading...");
       console.log(config);
     }
   };
@@ -150,7 +160,8 @@ const ConfigAiModels = ({ option }: { option: string }) => {
         onChange={(e) => {
           handleInputOnChange(option, e);
         }}
-        inputValue={inputValueVideo}
+        inputValue={inputValueVideoPath}
+        setInputValueVideoPath={setInputValueVideoPath}
       />
       <div className="transcription-ia-container">
         <HorizontalLine />
@@ -159,16 +170,14 @@ const ConfigAiModels = ({ option }: { option: string }) => {
           <ButtonOptions
             onClick={() => handleTranscriptionModelToggle("whisper")}
             isSelected={
-              "modelTranscription" in selectedTranscriptionModels
-                ? selectedTranscriptionModels.modelTranscription.includes(
-                    "whisper"
-                  )
+              "modelName" in selectedTranscriptionModels
+                ? selectedTranscriptionModels.modelName.includes("whisper")
                 : false
             }
           >
             {`Whisper ${
-              "modelTranscriptionSize" in selectedTranscriptionModels
-                ? selectedTranscriptionModels.modelTranscriptionSize
+              "modelSize" in selectedTranscriptionModels
+                ? selectedTranscriptionModels.modelSize
                 : ""
             }`}
           </ButtonOptions>
@@ -186,8 +195,8 @@ const ConfigAiModels = ({ option }: { option: string }) => {
           <ButtonOptions
             onClick={() => handleAiModelToggle("gpt-3")}
             isSelected={
-              "modelAi" in selectedAiModels
-                ? selectedAiModels.modelAi.includes("gpt-3")
+              "modelName" in selectedAiModels
+                ? selectedAiModels.modelName.includes("gpt-3")
                 : false
             }
           >
@@ -196,8 +205,8 @@ const ConfigAiModels = ({ option }: { option: string }) => {
           <ButtonOptions
             onClick={() => handleAiModelToggle("bard")}
             isSelected={
-              "modelAi" in selectedAiModels
-                ? selectedAiModels.modelAi.includes("bard")
+              "modelName" in selectedAiModels
+                ? selectedAiModels.modelName.includes("bard")
                 : false
             }
           >
@@ -229,13 +238,14 @@ const ConfigAiModels = ({ option }: { option: string }) => {
           handleInputOnChange("key", e);
         }}
         inputValue={inputValueKey}
+        setInputValueVideoPath={setInputValueVideoPath}
       />
 
       <HorizontalLine />
       <LoadConfigButton
         onClick={handleLoadConfigClick}
       >{`Load ${textProcessingOption}`}</LoadConfigButton>
-      {/* <Toaster /> */}
+      <Toaster richColors />
     </>
   );
 };

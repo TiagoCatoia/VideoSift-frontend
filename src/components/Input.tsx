@@ -6,15 +6,17 @@ const Input = ({
   option,
   onChange,
   inputValue,
+  setInputValueVideoPath,
 }: {
   option: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   inputValue: string;
+  setInputValueVideoPath: (value: string) => void;
 }) => {
   const [inputType, setInputType] = useState<string>("text");
 
   useEffect(() => {
-    // setInputValue("");
+    setInputValueVideoPath("");
     setInputType(option === "url" || option === "key" ? "text" : "file");
   }, [option]);
 
