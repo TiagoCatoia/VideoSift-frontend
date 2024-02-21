@@ -1,5 +1,3 @@
-import React from "react";
-
 import "./DisplayArea.css";
 
 const DisplayArea = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
 import ButtonOptions from "./ButtonOptions";
 import HorizontalLine from "./HorizontalLine";
@@ -20,10 +20,14 @@ type TranscriptionModel = {
 };
 
 const ConfigAiModels = ({ option }: { option: string }) => {
-  const [selectedAiModels, setSelectedAiModels] = useState<AiModel | {}>({});
+  const [selectedAiModels, setSelectedAiModels] = useState<AiModel>({
+    modelName: "",
+  });
 
   const [selectedTranscriptionModels, setSelectedTranscriptionModels] =
-    useState<TranscriptionModel | {}>({});
+    useState<TranscriptionModel>({
+      modelName: "",
+    });
 
   const [textProcessingOption, setTextProcessingOption] = useState<string>("");
 
@@ -34,11 +38,20 @@ const ConfigAiModels = ({ option }: { option: string }) => {
 
   const modelsRequiringSize: string[] = ["whisper"];
 
+  useEffect(() => {
+    if (selectedAiModels.modelName) {
+      const apiKey = localStorage.getItem(selectedAiModels.modelName);
+      if (apiKey) {
+        setInputValueKey(apiKey);
+      }
+    }
+  }, [selectedAiModels.modelName]);
+
   const handleAiModelToggle = (newSelected: string) => {
     setSelectedAiModels((prevSelectedModels) => {
       if ("modelName" in prevSelectedModels) {
         prevSelectedModels.modelName === newSelected
-          ? (setPopoverVisible(false), (prevSelectedModels = {}))
+          ? (setPopoverVisible(false), (prevSelectedModels = { modelName: "" }))
           : (setPopoverVisible(false),
             modelsRequiringSize.includes(newSelected) &&
               setPopoverVisible(newSelected),
@@ -56,7 +69,7 @@ const ConfigAiModels = ({ option }: { option: string }) => {
     setSelectedTranscriptionModels((prevSelectedModels) => {
       if ("modelName" in prevSelectedModels) {
         prevSelectedModels.modelName === newSelected
-          ? (setPopoverVisible(false), (prevSelectedModels = {}))
+          ? (setPopoverVisible(false), (prevSelectedModels = { modelName: "" }))
           : (setPopoverVisible(false),
             modelsRequiringSize.includes(newSelected) &&
               setPopoverVisible(newSelected),
@@ -111,6 +124,10 @@ const ConfigAiModels = ({ option }: { option: string }) => {
     }
   };
 
+  const storageKey = (inputValueKey: string): void => {
+    localStorage.setItem(selectedAiModels.modelName, inputValueKey);
+  };
+
   const testObjectEmpty = (obj: {} | AiModel | TranscriptionModel) => {
     if ("modelName" in obj) {
       return modelsRequiringSize.includes(obj.modelName)
@@ -150,6 +167,8 @@ const ConfigAiModels = ({ option }: { option: string }) => {
       };
       toast.success("Success loading...");
       console.log(config);
+
+      storageKey(inputValueKey);
     }
   };
 
@@ -203,14 +222,14 @@ const ConfigAiModels = ({ option }: { option: string }) => {
             GPT-3
           </ButtonOptions>
           <ButtonOptions
-            onClick={() => handleAiModelToggle("bard")}
+            onClick={() => handleAiModelToggle("gemini")}
             isSelected={
               "modelName" in selectedAiModels
-                ? selectedAiModels.modelName.includes("bard")
+                ? selectedAiModels.modelName.includes("gemini")
                 : false
             }
           >
-            Bard
+            Gemini
           </ButtonOptions>
         </div>
         <HorizontalLine />

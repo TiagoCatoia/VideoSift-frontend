@@ -1,8 +1,7 @@
 import { IoIosLink } from "react-icons/io";
 import { ImUpload2 } from "react-icons/im";
-import React, { useState } from "react";
+import { useState } from "react";
 
-import HorizontalLine from "./HorizontalLine";
 import ModelsConfig from "./ModelsConfig";
 
 import ButtonOptions from "./ButtonOptions";

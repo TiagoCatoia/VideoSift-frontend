@@ -1,5 +1,3 @@
-import React from "react";
-
 import Header from "./components/Header";
 import Configuration from "./components/Configuration";
 import DisplayArea from "./components/DisplayArea";

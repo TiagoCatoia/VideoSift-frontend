@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./Input.css";
 
@@ -29,6 +29,7 @@ const Input = ({
         placeholder={`Enter ${option}`}
         value={`${inputValue}`}
         onChange={onChange}
+        accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
       />
       {option === "upload" && (
         <button className="btn-input-value">{`${

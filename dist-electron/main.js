@@ -7,9 +7,9 @@ let win;
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 function createWindow() {
   win = new electron.BrowserWindow({
-    width: 800,
+    width: 1e3,
     // Largura da janela em pixels
-    height: 600,
+    height: 700,
     // Altura da janela em pixels
     resizable: false,
     // Impede o redimensionamento da janela

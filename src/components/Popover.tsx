@@ -1,5 +1,3 @@
-import React, { MouseEvent } from "react";
-
 import "./Popover.css";
 
 type ButtonOptionsSize = {
