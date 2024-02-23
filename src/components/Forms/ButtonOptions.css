@@ -1,0 +1,46 @@
+.btn-options {
+  min-height: 2.5rem;
+  width: 10rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background-color: white;
+  color: var(--gray);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.3rem;
+  outline: 0;
+}
+
+.btn-options:hover {
+  border-radius: 0.3rem;
+  background-color: var(--background-hover);
+  color: var(--black);
+  cursor: pointer;
+  transform: translateY(-0.2rem);
+  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--black);
+}
+
+.selected {
+  background-color: var(--blue-light);
+  color: white;
+}
+
+.selected:hover {
+  background-color: var(--blue-dark);
+  color: white;
+  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--blue-dark);
+}
+
+.popover {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1; /* Ajuste conforme necessário */
+}
+
+.error {
+  background-color: red;
+}
