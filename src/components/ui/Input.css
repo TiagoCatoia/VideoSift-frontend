@@ -1,0 +1,71 @@
+.input-container {
+  display: flex;
+  justify-content: space-evenly;
+  position: relative;
+  min-height: 2rem;
+  border-radius: 0.3rem;
+  margin: 0.5rem;
+  width: 85%;
+  outline: 0;
+}
+
+.upload {
+  background-color: var(--blue-light);
+  margin-inline: 2rem;
+  border-radius: 0.3rem;
+  transition: all 0.3s ease;
+  outline: 0;
+}
+
+.upload:hover {
+  background-color: var(--blue-dark);
+  transform: translateY(-0.2rem);
+  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--blue-dark);
+  cursor: pointer;
+}
+
+.input[type="text"] {
+  width: 100%;
+  min-height: 1.9rem;
+  outline: none;
+  border: 0;
+  border-radius: 0.3rem;
+  font-size: 1rem;
+  text-align: center;
+  background-color: var(--background);
+  transition: all 0.3s ease;
+}
+
+.input[type="text"]::placeholder {
+  color: var(--placeholder);
+}
+
+.input[type="text"]:hover {
+  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--black);
+}
+
+.input[type="file"],
+.input[type="file"]::file-selector-button {
+  background-color: transparent;
+  color: transparent;
+  width: 100%;
+  min-height: 2rem;
+  border: 0;
+  z-index: 1;
+  cursor: pointer;
+  outline: 0;
+}
+
+.btn-input-value {
+  background-color: transparent;
+  color: white;
+  border: 0;
+  border-radius: 0.3rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
+  outline: 0;
+}
