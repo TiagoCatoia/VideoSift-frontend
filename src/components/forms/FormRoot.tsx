@@ -1,19 +1,23 @@
 import { IoIosLink } from "react-icons/io";
 import { ImUpload2 } from "react-icons/im";
 import { useState } from "react";
+import { AppConfig } from "../../types/config-type";
 
 import FormContent from "./FormContent";
 import ButtonOptions from "../ui/Button";
 
 import "./Forms.css";
 
-const FormRoot = () => {
-  const [option, setOption] = useState<string | null>(null);
+const FormRoot = ({
+  updateAppConfigValue,
+}: {
+  updateAppConfigValue: (newConfig: AppConfig) => void;
+}) => {
+  const [option, setOption] = useState<string | null>("url");
 
   const handleOptionClick = (choicedOption: string) => {
     setOption(choicedOption);
   };
-
   return (
     <>
       <div className="forms-root-container">
@@ -32,7 +36,12 @@ const FormRoot = () => {
           </div>
         </div>
         <div className="forms-content-container">
-          {option !== null && <FormContent option={option} />}
+          {option !== null && (
+            <FormContent
+              option={option}
+              updateAppConfigValue={updateAppConfigValue}
+            />
+          )}
         </div>
       </div>
     </>

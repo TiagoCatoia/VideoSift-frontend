@@ -9,14 +9,6 @@ import { Forms } from "./components/forms";
 
 import "./App.css";
 
-export const AppConfigContext = createContext<
-  | {
-      appConfig: AppConfig | undefined;
-      updateAppConfigValue: (newAppConfig: AppConfig) => void;
-    }
-  | undefined
->(undefined);
-
 function App() {
   const [appConfig, setAppConfig] = useState<AppConfig | undefined>(undefined);
 
@@ -28,12 +20,10 @@ function App() {
     <>
       <Header />
       <div className="main-content-container">
-        <AppConfigContext.Provider value={{ appConfig, updateAppConfigValue }}>
-          <QueryClientProvider client={queryClient}>
-            <Forms.FormRoot />
-            <DisplayArea />
-          </QueryClientProvider>
-        </AppConfigContext.Provider>
+        <QueryClientProvider client={queryClient}>
+          <Forms.FormRoot updateAppConfigValue={updateAppConfigValue} />
+          <DisplayArea appConfig={appConfig} />
+        </QueryClientProvider>
       </div>
     </>
   );

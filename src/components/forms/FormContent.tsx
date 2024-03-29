@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { AppConfigContext } from "../../App";
+import { AppConfig } from "../../types/config-type";
 
 import Button from "../ui/Button";
 import HorizontalLine from "../ui/HorizontalLine";
@@ -19,7 +19,13 @@ type TranscriptionModel = {
   modelSize?: string;
 };
 
-const FormContent = ({ option }: { option: string }) => {
+const FormContent = ({
+  option,
+  updateAppConfigValue,
+}: {
+  option: string;
+  updateAppConfigValue: (newConfig: AppConfig) => void;
+}) => {
   const [selectedAiModels, setSelectedAiModels] = useState<AiModel>({
     modelName: "",
   });
@@ -36,8 +42,6 @@ const FormContent = ({ option }: { option: string }) => {
   const [inputValueKey, setInputValueKey] = useState<string>("");
 
   const modelsRequiringSize: string[] = ["whisper"];
-
-  const useAppConfigContext = useContext(AppConfigContext);
 
   useEffect(() => {
     if (selectedAiModels.modelName) {
@@ -152,7 +156,7 @@ const FormContent = ({ option }: { option: string }) => {
         inputValueKey,
       };
       storageKey(inputValueKey);
-      useAppConfigContext?.updateAppConfigValue(newConfig);
+      updateAppConfigValue(newConfig);
     }
   };
 

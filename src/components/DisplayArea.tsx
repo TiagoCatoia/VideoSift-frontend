@@ -1,16 +1,15 @@
 import { useContext, useEffect } from "react";
-import { AppConfigContext } from "../App";
 import toast, { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import { getTextProcessing } from "../utils/getTextProcessing";
+import { AppConfig } from "../types/config-type";
 
 import "./DisplayArea.css";
 
-const DisplayArea = () => {
-  const useAppConfigContext = useContext(AppConfigContext);
-  const newConfig = useAppConfigContext?.appConfig;
+const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
+  const newConfig = appConfig;
   const { data, isLoading, error } = useQuery({
-    queryKey: [newConfig?.id],
+    queryKey: [newConfig],
     queryFn: () => (newConfig ? getTextProcessing(newConfig) : null),
     staleTime: 0,
     retry: false,
