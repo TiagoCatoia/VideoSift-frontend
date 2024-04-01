@@ -22,14 +22,3 @@
   transform: translateY(-0.2rem);
   box-shadow: 0 0.6rem 0.6rem -0.3rem var(--black);
 }
-
-.selected {
-  background-color: var(--blue-light);
-  color: white;
-}
-
-.selected:hover {
-  background-color: var(--blue-dark);
-  color: white;
-  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--blue-dark);
-}

@@ -1,13 +1,53 @@
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useState } from "react";
 import { AppConfig } from "../../types/config-type";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast, { Toaster } from "react-hot-toast";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import Button from "../ui/Button";
-import HorizontalLine from "../ui/HorizontalLine";
 import PopoverSizes from "../ui/PopoverSizes";
 import Input from "../ui/Input";
-import toast from "react-hot-toast";
 
 import "./Forms.css";
+
+const urlSchema = z.object({
+  inputValueVideoUrl: z
+    .string()
+    .refine(
+      (url) =>
+        /^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+/.test(
+          url
+        ),
+      {
+        message: "Please enter a valid YouTube video URL",
+      }
+    ),
+  modelTranscription: z.any().refine((file) => file !== null, {
+    message: "Transcription model is required",
+  }),
+  modelAi: z.string(),
+  textProcessingOption: z.string(),
+  aiKey: z.string(),
+});
+
+const fileSchema = z.object({
+  inputValueVideoPath: z
+    .any()
+    .refine((file) => file.length > 0, "Video path is required"),
+  modelTranscription: z
+    .string()
+    .min(1, { message: "Transcription model is required" }),
+  modelAi: z.string({
+    required_error: "AI model is required",
+  }),
+  textProcessingOption: z.string({
+    required_error: "Text processing option is required",
+  }),
+  aiKey: z.string({
+    required_error: "Missing API key for authentication",
+  }),
+});
 
 type AiModel = {
   modelName: string;
@@ -26,260 +66,160 @@ const FormContent = ({
   option: string;
   updateAppConfigValue: (newConfig: AppConfig) => void;
 }) => {
-  const [selectedAiModels, setSelectedAiModels] = useState<AiModel>({
-    modelName: "",
-  });
-  const [selectedTranscriptionModels, setSelectedTranscriptionModels] =
-    useState<TranscriptionModel>({
-      modelName: "",
-    });
+  const schema = option === "url" ? urlSchema : fileSchema;
+  type FormFields = z.infer<typeof schema>;
 
-  const [textProcessingOption, setTextProcessingOption] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+    clearErrors,
+  } = useForm<FormFields>({ resolver: zodResolver(schema) });
 
-  const [popoverVisible, setPopoverVisible] = useState<string | false>(false);
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    console.log(data);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Form submitted:", data);
+    } catch (error) {
+      setError("inputValueVideoPath", {
+        message: "This path video is invalid",
+      });
+    }
+  };
 
-  const [inputValueVideoPath, setInputValueVideoPath] = useState<string>("");
-  const [inputValueKey, setInputValueKey] = useState<string>("");
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
 
-  const modelsRequiringSize: string[] = ["whisper"];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (fileList && fileList.length > 0) {
+      const file = fileList[0];
+      setSelectedFileName(file.name);
+    } else {
+      setSelectedFileName("");
+    }
+  };
+
+  const handleClearOption = (
+    register: "inputValueVideoUrl" | "inputValueVideoPath"
+  ) => {
+    clearErrors(register);
+  };
 
   useEffect(() => {
-    if (selectedAiModels.modelName) {
-      const apiKey = localStorage.getItem(selectedAiModels.modelName);
-      if (apiKey) {
-        setInputValueKey(apiKey);
-      }
+    const firstErrorKey = Object.keys(schema.shape).find((key) => errors[key]);
+    if (errors && errors.inputValueVideoUrl) {
+      toast.error(errors["inputValueVideoUrl"].message);
+    } else if (errors && errors.modelTranscription) {
+      toast.error(errors["modelTranscription"].message);
     }
-  }, [selectedAiModels.modelName]);
-
-  const storageKey = (inputValueKey: string): void => {
-    localStorage.setItem(selectedAiModels.modelName, inputValueKey);
-  };
-
-  const handleModelToggle = (
-    newSelected: string,
-    setSelectedModels: React.Dispatch<
-      React.SetStateAction<AiModel | TranscriptionModel>
-    >,
-    modelsRequiringSize: string[]
-  ) => {
-    setSelectedModels((prevSelectedModels) => {
-      if (prevSelectedModels.modelName) {
-        prevSelectedModels.modelName === newSelected
-          ? (setPopoverVisible(false), (prevSelectedModels = { modelName: "" }))
-          : (setPopoverVisible(false),
-            modelsRequiringSize.includes(newSelected) &&
-              setPopoverVisible(newSelected),
-            (prevSelectedModels = { modelName: newSelected }));
-        return prevSelectedModels;
-      } else {
-        modelsRequiringSize.includes(newSelected) &&
-          setPopoverVisible(newSelected);
-        return { modelName: newSelected };
-      }
-    });
-  };
-
-  const handleProcessingTextToggle = (newSelected: string) => {
-    setTextProcessingOption((prevSelected) => {
-      textProcessingOption === newSelected
-        ? (prevSelected = "")
-        : (prevSelected = newSelected);
-      return prevSelected;
-    });
-  };
-
-  const handleSizeClick = (
-    size: string,
-    modelName: string,
-    modelType: string
-  ) => {
-    const selectedModels =
-      modelType === "ai" ? selectedAiModels : selectedTranscriptionModels;
-
-    if (selectedModels.modelName) {
-      selectedModels.modelName === modelName
-        ? ((selectedModels.modelSize = size), setPopoverVisible(false))
-        : null;
-    }
-  };
-
-  const handleInputOnChange = (
-    option: string,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (option === "key") {
-      setInputValueKey(e.target.value);
-    } else {
-      setInputValueVideoPath(e.target.value);
-    }
-  };
-
-  const testObjectEmpty = (obj: AiModel | TranscriptionModel) => {
-    if (obj.modelName) {
-      return modelsRequiringSize.includes(obj.modelName)
-        ? !obj.modelSize
-        : false;
-    } else {
-      return true;
-    }
-  };
-
-  const handleSendConfig = () => {
-    toast.remove();
-    if (!inputValueVideoPath) {
-      toast.error("Video path is not provided");
-    } else if (testObjectEmpty(selectedTranscriptionModels)) {
-      if (selectedTranscriptionModels.modelName) {
-        toast.error("Transcription model 'Size' is not provided");
-      } else {
-        toast.error("Transcription model is not provided");
-      }
-    } else if (testObjectEmpty(selectedAiModels)) {
-      if (selectedAiModels.modelName) {
-        toast.error("AI model 'Size' is not provided");
-      } else {
-        toast.error("AI model is not provided");
-      }
-    } else if (!textProcessingOption) {
-      toast.error("Text processing option is not provided");
-    } else if (!inputValueKey) {
-      toast.error("Missing API key for authentication");
-    } else {
-      const id = crypto.randomUUID();
-      const newConfig = {
-        id,
-        inputValueVideoPath,
-        selectedAiModels,
-        selectedTranscriptionModels,
-        textProcessingOption,
-        inputValueKey,
-      };
-      storageKey(inputValueKey);
-      updateAppConfigValue(newConfig);
-    }
-  };
+  }, [errors]);
 
   return (
-    <>
-      <Input
-        option={option}
-        onChange={(e) => {
-          handleInputOnChange(option, e);
-        }}
-        inputValue={inputValueVideoPath}
-        setInputValueVideoPath={setInputValueVideoPath}
-      />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className={`input-container ${option}`}>
+        <input
+          {...register("inputValueVideoUrl")}
+          type="text"
+          placeholder={`Enter ${option}`}
+          className={option === "upload" ? "input disable" : "input"}
+          onChange={(e) => {
+            handleClearOption("inputValueVideoUrl");
+            handleFileChange(e);
+          }}
+        />
+        <input
+          {...register("inputValueVideoPath")}
+          className={option === "url" ? "input disable" : "input"}
+          placeholder=""
+          type="file"
+          accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
+          onChange={(e) => {
+            handleClearOption("inputValueVideoPath");
+            handleFileChange(e);
+          }}
+        />
+        {option === "upload" && (
+          <button className="btn-input-value">{`${
+            selectedFileName || "Choose File"
+          }`}</button>
+        )}
+      </div>
       <div className="transcription-ia-container">
-        <HorizontalLine />
+        <hr className="horizontal-line" />
         <h4>Type Transcription</h4>
-        <div className="transcription-options">
-          <Button
-            onClick={() =>
-              handleModelToggle(
-                "whisper",
-                setSelectedTranscriptionModels,
-                modelsRequiringSize
-              )
-            }
-            isSelected={
-              "modelName" in selectedTranscriptionModels
-                ? selectedTranscriptionModels.modelName.includes("whisper")
-                : false
-            }
-          >
-            {`Whisper ${
-              "modelSize" in selectedTranscriptionModels
-                ? selectedTranscriptionModels.modelSize
-                : ""
-            }`}
-          </Button>
-          {popoverVisible === "whisper" && (
-            <PopoverSizes
-              onClick={handleSizeClick}
-              modelName="whisper"
-              modelType="transcription"
-              sizes={[
-                "tiny",
-                "base",
-                "small",
-                "medium",
-                "large-v1",
-                "large-v2",
-              ]}
-            ></PopoverSizes>
-          )}
+        <div className="transcription-options dropdown">
+          <input
+            {...register("modelTranscription")}
+            className="option"
+            type="radio"
+            id="whisper"
+            value="whisper"
+          ></input>
+          <label htmlFor="whisper">Whisper</label>
         </div>
-        <HorizontalLine />
+        <hr className="horizontal-line" />
         <h4>AI Model</h4>
-        <div className="ai-options">
-          <Button
-            onClick={() =>
-              handleModelToggle(
-                "gpt-3",
-                setSelectedAiModels,
-                modelsRequiringSize
-              )
-            }
-            isSelected={
-              "modelName" in selectedAiModels
-                ? selectedAiModels.modelName.includes("gpt-3")
-                : false
-            }
-          >
-            GPT-3
-          </Button>
-          <Button
-            onClick={() =>
-              handleModelToggle(
-                "gemini",
-                setSelectedAiModels,
-                modelsRequiringSize
-              )
-            }
-            isSelected={
-              "modelName" in selectedAiModels
-                ? selectedAiModels.modelName.includes("gemini")
-                : false
-            }
-          >
-            Gemini
-          </Button>
+        <div className="ai-options dropdown">
+          <input
+            {...register("modelAi")}
+            className="option"
+            type="radio"
+            id="gpt3"
+            value="gpt3"
+          ></input>
+          <label htmlFor="gpt3">GPT-3</label>
+          <input
+            {...register("modelAi")}
+            className="option"
+            type="radio"
+            id="gemini"
+            value="gemini"
+          ></input>
+          <label htmlFor="gemini">Gemini</label>
         </div>
-        <HorizontalLine />
+        <hr className="horizontal-line" />
         <h4>Text processing option</h4>
         <div className="text-processing-options">
-          <Button
-            onClick={() => handleProcessingTextToggle("summarizing")}
-            isSelected={textProcessingOption === "summarizing" ? true : false}
-          >
-            Summarizing
-          </Button>
-          <Button
-            onClick={() => handleProcessingTextToggle("classifying")}
-            isSelected={textProcessingOption === "classifying" ? true : false}
-          >
-            Classifying
-          </Button>
+          <input
+            {...register("textProcessingOption")}
+            className="option"
+            type="radio"
+            id="summarizing"
+            value="summarizing"
+          ></input>
+          <label htmlFor="summarizing">Summarizing</label>
+          <input
+            {...register("textProcessingOption")}
+            className="option"
+            type="radio"
+            id="classifying"
+            value="classifying"
+          ></input>
+          <label htmlFor="classifying">Classifying</label>
         </div>
       </div>
-      <HorizontalLine />
+      <hr className="horizontal-line" />
       <h3>AI KEY</h3>
-      <Input
-        option="key"
-        onChange={(e) => {
-          handleInputOnChange("key", e);
-        }}
-        inputValue={inputValueKey}
-        setInputValueVideoPath={setInputValueVideoPath}
-      />
-
-      <HorizontalLine />
-      <Button
-        onClick={handleSendConfig}
-        isSelected={true}
-      >{`Load ${textProcessingOption}`}</Button>
-    </>
+      <div className={`input-container ${option}`}>
+        <input
+          {...register("aiKey")}
+          type="text"
+          placeholder={`Enter ${option}`}
+          className="input"
+          onChange={(e) => {
+            handleClearOption("inputValueVideoUrl");
+            handleFileChange(e);
+          }}
+        />
+      </div>
+      <hr className="horizontal-line" />
+      <button className="btn-submit" disabled={isSubmitting} type="submit">
+        {isSubmitting ? "Loading" : "Submit"}
+      </button>
+      <Toaster position="bottom-right" />
+    </form>
   );
 };
 

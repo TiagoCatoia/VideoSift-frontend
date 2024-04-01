@@ -9,7 +9,7 @@ const Header = () => {
           <h1 className="main-title">VideoSift</h1>
         </div>
         <p className="description-text-app">
-          Resumo e Classificação de videos com IA
+          Summary and Classification of Videos with AI
         </p>
       </div>
     </>
