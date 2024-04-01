@@ -5,14 +5,11 @@ import toast, { Toaster } from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import Button from "../ui/Button";
-import PopoverSizes from "../ui/PopoverSizes";
-import Input from "../ui/Input";
-
 import "./Forms.css";
 
 const urlSchema = z.object({
-  inputValueVideoUrl: z
+  inputVideoPath: z.optional(z.any()),
+  inputVideoUrl: z
     .string()
     .refine(
       (url) =>
@@ -26,27 +23,34 @@ const urlSchema = z.object({
   modelTranscription: z.any().refine((file) => file !== null, {
     message: "Transcription model is required",
   }),
-  modelAi: z.string(),
-  textProcessingOption: z.string(),
-  aiKey: z.string(),
+  modelAi: z.any().refine((file) => file !== null, {
+    message: "Ai model is required",
+  }),
+  textProcessingOption: z.any().refine((file) => file !== null, {
+    message: "Text processing option is required",
+  }),
+  aiKey: z
+    .string()
+    .refine((key) => key.length > 0, "API key is required for authentication"),
 });
 
 const fileSchema = z.object({
-  inputValueVideoPath: z
+  inputVideoUrl: z.optional(z.any()),
+  inputVideoPath: z
     .any()
     .refine((file) => file.length > 0, "Video path is required"),
-  modelTranscription: z
+  modelTranscription: z.any().refine((file) => file !== null, {
+    message: "Transcription model is required",
+  }),
+  modelAi: z.any().refine((file) => file !== null, {
+    message: "Ai model is required",
+  }),
+  textProcessingOption: z.any().refine((file) => file !== null, {
+    message: "Text processing option is required",
+  }),
+  aiKey: z
     .string()
-    .min(1, { message: "Transcription model is required" }),
-  modelAi: z.string({
-    required_error: "AI model is required",
-  }),
-  textProcessingOption: z.string({
-    required_error: "Text processing option is required",
-  }),
-  aiKey: z.string({
-    required_error: "Missing API key for authentication",
-  }),
+    .refine((key) => key.length > 0, "API key is required for authentication"),
 });
 
 type AiModel = {
@@ -78,12 +82,22 @@ const FormContent = ({
   } = useForm<FormFields>({ resolver: zodResolver(schema) });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    console.log(data);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Form submitted:", data);
+      const newId = crypto.randomUUID();
+      const newConfig = {
+        id: newId,
+        inputValueVideo:
+          option === "url" ? data.inputVideoUrl : data.inputVideoPath[0].name,
+        selectedAiModels: data.modelAi,
+        selectedTranscriptionModels: data.modelTranscription,
+        textProcessingOption: data.textProcessingOption,
+        inputValueKey: data.aiKey,
+      };
+      updateAppConfigValue(newConfig);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      setError("inputValueVideoPath", {
+      setError("inputVideoPath", {
         message: "This path video is invalid",
       });
     }
@@ -101,18 +115,23 @@ const FormContent = ({
     }
   };
 
-  const handleClearOption = (
-    register: "inputValueVideoUrl" | "inputValueVideoPath"
-  ) => {
+  const handleClearOption = (register: "inputVideoUrl" | "inputVideoPath") => {
     clearErrors(register);
   };
 
   useEffect(() => {
-    const firstErrorKey = Object.keys(schema.shape).find((key) => errors[key]);
-    if (errors && errors.inputValueVideoUrl) {
-      toast.error(errors["inputValueVideoUrl"].message);
-    } else if (errors && errors.modelTranscription) {
+    if (errors.inputVideoUrl) {
+      toast.error(errors["inputVideoUrl"].message);
+    } else if (errors.inputVideoPath) {
+      toast.error(errors["inputVideoPath"].message);
+    } else if (errors.modelTranscription) {
       toast.error(errors["modelTranscription"].message);
+    } else if (errors.modelAi) {
+      toast.error(errors["modelAi"].message);
+    } else if (errors.textProcessingOption) {
+      toast.error(errors["textProcessingOption"].message);
+    } else if (errors.aiKey) {
+      toast.error(errors["aiKey"].message);
     }
   }, [errors]);
 
@@ -120,23 +139,23 @@ const FormContent = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className={`input-container ${option}`}>
         <input
-          {...register("inputValueVideoUrl")}
+          {...register("inputVideoUrl")}
           type="text"
           placeholder={`Enter ${option}`}
           className={option === "upload" ? "input disable" : "input"}
           onChange={(e) => {
-            handleClearOption("inputValueVideoUrl");
+            handleClearOption("inputVideoUrl");
             handleFileChange(e);
           }}
         />
         <input
-          {...register("inputValueVideoPath")}
+          {...register("inputVideoPath")}
           className={option === "url" ? "input disable" : "input"}
           placeholder=""
           type="file"
           accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
           onChange={(e) => {
-            handleClearOption("inputValueVideoPath");
+            handleClearOption("inputVideoPath");
             handleFileChange(e);
           }}
         />
@@ -202,14 +221,14 @@ const FormContent = ({
       </div>
       <hr className="horizontal-line" />
       <h3>AI KEY</h3>
-      <div className={`input-container ${option}`}>
+      <div className={`input-container url`}>
         <input
           {...register("aiKey")}
           type="text"
           placeholder={`Enter ${option}`}
           className="input"
           onChange={(e) => {
-            handleClearOption("inputValueVideoUrl");
+            handleClearOption("inputVideoUrl");
             handleFileChange(e);
           }}
         />

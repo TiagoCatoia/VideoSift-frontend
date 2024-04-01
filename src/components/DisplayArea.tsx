@@ -8,6 +8,7 @@ import "./DisplayArea.css";
 
 const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
   const newConfig = appConfig;
+  console.log(newConfig);
   const { data, isLoading, error } = useQuery({
     queryKey: [newConfig],
     queryFn: () => (newConfig ? getTextProcessing(newConfig) : null),

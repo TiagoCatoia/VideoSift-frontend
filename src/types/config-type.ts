@@ -1,6 +1,6 @@
 export type AppConfig = {
   id: string;
-  inputValueVideoPath: string;
+  inputValueVideo: string;
   selectedAiModels: {
     modelName: string;
     modelSize?: string;
