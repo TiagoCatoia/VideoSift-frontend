@@ -22,6 +22,27 @@
   color: var(--black);
 }
 
+.btn-option {
+  min-height: 2.5rem;
+  width: 10rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background-color: white;
+  color: var(--black);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.3rem;
+  outline: 0;
+}
+
+.btn-option:hover {
+  background-color: var(--background-hover);
+  cursor: pointer;
+}
+
 /* FormContent */
 form {
   width: 100%;

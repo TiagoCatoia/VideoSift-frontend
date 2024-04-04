@@ -1,25 +1,19 @@
 import "./PopoverSizes.css";
 
 type ButtonOptionsSize = {
-  onClick: (size: string, modelName: string, modelType: string) => void;
-  modelName: string;
-  modelType: string;
+  onClick: (e: any, option: string, size: string) => void;
+  option: string;
   sizes: string[];
 };
 
-const PopoverSizes = ({
-  onClick,
-  modelName,
-  modelType,
-  sizes,
-}: ButtonOptionsSize) => {
+const PopoverSizes = ({ onClick, option, sizes }: ButtonOptionsSize) => {
   return (
-    <div className="popover">
+    <div className="popover-container">
       {sizes.map((size) => (
         <button
           key={size}
           className="size-option"
-          onClick={() => onClick(size, modelName, modelType)}
+          onClick={(e) => onClick(e, option, size)}
         >
           {size}
         </button>

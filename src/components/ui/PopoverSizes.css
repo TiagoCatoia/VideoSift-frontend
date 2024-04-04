@@ -1,17 +1,32 @@
-.popover {
+.popover-container {
+  width: 80%;
   position: absolute;
-  bottom: 2.8rem;
-  background-color: var(--black);
-  border-radius: 0.3rem;
-  display: flex;
-  gap: 0.5rem;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: var(--background);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px 5px rgba(41, 41, 41, 0.295);
   z-index: 1;
-  border: 0;
-  box-shadow: 0 0.6rem 0.6rem -0.3rem var(--black);
-  padding: 0.4rem;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.dark-fitler {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: #000000bd;
 }
 
 .size-option {
+  margin: 0.2rem;
   padding: 0.8rem;
   background-color: var(--blue-light);
   color: white;
@@ -22,6 +37,5 @@
 
 .size-option:hover {
   background-color: var(--blue-dark);
-  transform: translateY(-0.2rem);
   cursor: pointer;
 }

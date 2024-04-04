@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AppConfig } from "../../types/config-type";
 
 import FormContent from "./FormContent";
-import ButtonOptions from "../ui/Button";
 
 import "./Forms.css";
 
@@ -23,16 +22,16 @@ const FormRoot = ({
       <div className="forms-root-container">
         <div className="video-options">
           <div onClick={() => handleOptionClick("url")}>
-            <ButtonOptions>
+            <button className="btn-option">
               <IoIosLink />
               URL
-            </ButtonOptions>
+            </button>
           </div>
           <div onClick={() => handleOptionClick("upload")}>
-            <ButtonOptions>
+            <button className="btn-option">
               <ImUpload2 />
               Upload Video
-            </ButtonOptions>
+            </button>
           </div>
         </div>
         <div className="forms-content-container">

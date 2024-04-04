@@ -4,6 +4,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import PopoverSizes from "../ui/PopoverSizes";
 
 import "./Forms.css";
 
@@ -70,11 +71,14 @@ const FormContent = ({
   option: string;
   updateAppConfigValue: (newConfig: AppConfig) => void;
 }) => {
+  const [whisperPop, setWhisperPop] = useState(false);
+
   const schema = option === "url" ? urlSchema : fileSchema;
   type FormFields = z.infer<typeof schema>;
 
   const {
     register,
+    setValue,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -115,6 +119,46 @@ const FormContent = ({
     }
   };
 
+  const handleOpenPopover = (e: any, ref: string) => {
+    if (ref === "whisper") {
+      e.preventDefault();
+      setWhisperPop(!whisperPop);
+    }
+  };
+
+  const handleSizeClick = (e: any, optionName: string, size: string) => {
+    e.preventDefault();
+    const input = document.querySelector(`#${optionName}`);
+    const label = document.querySelector(`label[for=${optionName}]`);
+    if (label && label.textContent && input) {
+      label.textContent = optionName;
+      setValue(`modelTranscription`, label.textContent + " " + size);
+      label.textContent =
+        label.textContent.charAt(0).toUpperCase() +
+        label.textContent.slice(1) +
+        ` ${size}`;
+      input.checked = true;
+    }
+    if (optionName === "whisper") {
+      setWhisperPop(false);
+    }
+  };
+
+  document.addEventListener("click", (e: any) => {
+    if (whisperPop) {
+      const divPopover = document.querySelector(".popover-container");
+      const button = document.querySelector("#whisper");
+      if (divPopover && button) {
+        if (!divPopover.contains(e.target) && !button.contains(e.target)) {
+          const input = document.querySelector(`#whisper`);
+          input.checked = false;
+          setValue(`modelTranscription`, null);
+          setWhisperPop(false);
+        }
+      }
+    }
+  });
+
   const handleClearOption = (register: "inputVideoUrl" | "inputVideoPath") => {
     clearErrors(register);
   };
@@ -136,109 +180,126 @@ const FormContent = ({
   }, [errors]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className={`input-container ${option}`}>
-        <input
-          {...register("inputVideoUrl")}
-          type="text"
-          placeholder={`Enter ${option}`}
-          className={option === "upload" ? "input disable" : "input"}
-          onChange={(e) => {
-            handleClearOption("inputVideoUrl");
-            handleFileChange(e);
-          }}
-        />
-        <input
-          {...register("inputVideoPath")}
-          className={option === "url" ? "input disable" : "input"}
-          placeholder=""
-          type="file"
-          accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
-          onChange={(e) => {
-            handleClearOption("inputVideoPath");
-            handleFileChange(e);
-          }}
-        />
-        {option === "upload" && (
-          <button className="btn-input-value">{`${
-            selectedFileName || "Choose File"
-          }`}</button>
-        )}
-      </div>
-      <div className="transcription-ia-container">
-        <hr className="horizontal-line" />
-        <h4>Type Transcription</h4>
-        <div className="transcription-options dropdown">
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className={`input-container ${option}`}>
           <input
-            {...register("modelTranscription")}
-            className="option"
-            type="radio"
-            id="whisper"
-            value="whisper"
-          ></input>
-          <label htmlFor="whisper">Whisper</label>
+            {...register("inputVideoUrl")}
+            type="text"
+            placeholder={`Enter ${option}`}
+            className={option === "upload" ? "input disable" : "input"}
+            onChange={(e) => {
+              handleClearOption("inputVideoUrl");
+            }}
+          />
+          <input
+            {...register("inputVideoPath")}
+            className={option === "url" ? "input disable" : "input"}
+            placeholder=""
+            type="file"
+            accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
+            onChange={(e) => {
+              handleClearOption("inputVideoPath");
+              handleFileChange(e);
+            }}
+          />
+          {option === "upload" && (
+            <button className="btn-input-value">{`${
+              selectedFileName || "Choose File"
+            }`}</button>
+          )}
+        </div>
+        <div className="transcription-ia-container">
+          <hr className="horizontal-line" />
+          <h4>Type Transcription</h4>
+          <div className="transcription-options dropdown">
+            <input
+              {...register("modelTranscription")}
+              className={`${whisperPop ? "option" : "hidden"}`}
+              type="radio"
+              id="whisper"
+              value="whisper"
+              onClick={(e) => handleOpenPopover(e, "whisper")}
+            ></input>
+            <label htmlFor="whisper">Whisper</label>
+            {whisperPop && (
+              <PopoverSizes
+                option="whisper"
+                sizes={[
+                  "tiny",
+                  "base",
+                  "small",
+                  "medium",
+                  "large-v1",
+                  "large-v2",
+                ]}
+                onClick={handleSizeClick}
+              />
+            )}
+          </div>
+          <hr className="horizontal-line" />
+          <h4>AI Model</h4>
+          <div className="ai-options dropdown">
+            <input
+              {...register("modelAi")}
+              className="option"
+              type="radio"
+              id="gpt3"
+              value="gpt3"
+            ></input>
+            <label htmlFor="gpt3">GPT-3</label>
+            <input
+              {...register("modelAi")}
+              className="option"
+              type="radio"
+              id="gemini"
+              value="gemini"
+            ></input>
+            <label htmlFor="gemini">Gemini</label>
+          </div>
+          <hr className="horizontal-line" />
+          <h4>Text processing option</h4>
+          <div className="text-processing-options">
+            <input
+              {...register("textProcessingOption")}
+              className="option"
+              type="radio"
+              id="summarizing"
+              value="summarizing"
+            ></input>
+            <label htmlFor="summarizing">Summarizing</label>
+            <input
+              {...register("textProcessingOption")}
+              className="option"
+              type="radio"
+              id="classifying"
+              value="classifying"
+            ></input>
+            <label htmlFor="classifying">Classifying</label>
+          </div>
         </div>
         <hr className="horizontal-line" />
-        <h4>AI Model</h4>
-        <div className="ai-options dropdown">
+        <h3>AI KEY</h3>
+        <div className={`input-container url`}>
           <input
-            {...register("modelAi")}
-            className="option"
-            type="radio"
-            id="gpt3"
-            value="gpt3"
-          ></input>
-          <label htmlFor="gpt3">GPT-3</label>
-          <input
-            {...register("modelAi")}
-            className="option"
-            type="radio"
-            id="gemini"
-            value="gemini"
-          ></input>
-          <label htmlFor="gemini">Gemini</label>
+            {...register("aiKey")}
+            type="text"
+            placeholder={`Enter ${option}`}
+            className="input"
+            onChange={(e) => {
+              handleClearOption("inputVideoUrl");
+              handleFileChange(e);
+            }}
+          />
         </div>
         <hr className="horizontal-line" />
-        <h4>Text processing option</h4>
-        <div className="text-processing-options">
-          <input
-            {...register("textProcessingOption")}
-            className="option"
-            type="radio"
-            id="summarizing"
-            value="summarizing"
-          ></input>
-          <label htmlFor="summarizing">Summarizing</label>
-          <input
-            {...register("textProcessingOption")}
-            className="option"
-            type="radio"
-            id="classifying"
-            value="classifying"
-          ></input>
-          <label htmlFor="classifying">Classifying</label>
-        </div>
-      </div>
-      <hr className="horizontal-line" />
-      <h3>AI KEY</h3>
-      <div className={`input-container url`}>
-        <input
-          {...register("aiKey")}
-          type="text"
-          placeholder={`Enter ${option}`}
-          className="input"
-          onChange={(e) => {
-            handleClearOption("inputVideoUrl");
-            handleFileChange(e);
-          }}
-        />
-      </div>
-      <hr className="horizontal-line" />
-      <button className="btn-submit" disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Loading" : "Submit"}
-      </button>
-      <Toaster position="bottom-right" />
-    </form>
+        <button className="btn-submit" disabled={isSubmitting} type="submit">
+          {isSubmitting ? "Loading" : "Submit"}
+        </button>
+        <Toaster position="bottom-right" />
+      </form>
+      {whisperPop ? <div className="dark-fitler"></div> : ""}
+    </>
   );
 };
 
