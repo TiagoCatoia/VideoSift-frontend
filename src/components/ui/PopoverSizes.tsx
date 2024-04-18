@@ -7,6 +7,7 @@ type ButtonOptionsSize = {
 };
 
 const PopoverSizes = ({ onClick, option, sizes }: ButtonOptionsSize) => {
+  
   return (
     <div className="popover-container">
       {sizes.map((size) => (

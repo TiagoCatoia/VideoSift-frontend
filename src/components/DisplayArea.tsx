@@ -9,6 +9,7 @@ import "./DisplayArea.css";
 const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
   const newConfig = appConfig;
   console.log(newConfig);
+
   const { data, isLoading, error } = useQuery({
     queryKey: [newConfig],
     queryFn: () => (newConfig ? getTextProcessing(newConfig) : null),
@@ -26,7 +27,6 @@ const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
     if (error) {
       toast.error(error.message);
     }
-    console.log(error);
   }, [error, newConfig]);
 
   if (isLoading) {
@@ -48,7 +48,7 @@ const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
             isLoading ? "Loading..." : "Your text will appear here..."
           }
           readOnly
-          value={data ? JSON.stringify(data.processedText) : ""}
+          value={data ? JSON.stringify(data) : ""}
         ></textarea>
       </div>
       <Toaster position="bottom-right" />

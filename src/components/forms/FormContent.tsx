@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { AppConfig } from "../../types/config-type";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Message, SubmitHandler, useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PopoverSizes from "../ui/PopoverSizes";
+import { zipVideo } from "../../utils/zipVideo";
+import { file } from "jszip";
 
 import "./Forms.css";
 
@@ -54,16 +56,6 @@ const fileSchema = z.object({
     .refine((key) => key.length > 0, "API key is required for authentication"),
 });
 
-type AiModel = {
-  modelName: string;
-  modelSize?: string;
-};
-
-type TranscriptionModel = {
-  modelName: string;
-  modelSize?: string;
-};
-
 const FormContent = ({
   option,
   updateAppConfigValue,
@@ -80,19 +72,23 @@ const FormContent = ({
     register,
     setValue,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
-    clearErrors,
   } = useForm<FormFields>({ resolver: zodResolver(schema) });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       console.log("Form submitted:", data);
       const newId = crypto.randomUUID();
+
+      console.log(data.inputVideoPath[0]);
+      const formData = new FormData();
+      formData.append("video", data.inputVideoPath[0]);
+      console.log(formData.get("video"));
+
       const newConfig = {
         id: newId,
         inputValueVideo:
-          option === "url" ? data.inputVideoUrl : data.inputVideoPath[0].name,
+          option === "url" ? data.inputVideoUrl : data.inputVideoPath,
         selectedAiModels: data.modelAi,
         selectedTranscriptionModels: data.modelTranscription,
         textProcessingOption: data.textProcessingOption,
@@ -101,21 +97,24 @@ const FormContent = ({
       updateAppConfigValue(newConfig);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      setError("inputVideoPath", {
-        message: "This path video is invalid",
-      });
+      console.log(error);
     }
   };
 
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (fileList && fileList.length > 0) {
-      const file = fileList[0];
+  const handleUploadVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileInput = e.target.files;
+    if (fileInput) {
+      const file = fileInput[0];
+      console.log(fileInput);
+
       setSelectedFileName(file.name);
-    } else {
-      setSelectedFileName("");
+      // const zipedVideo = await zipVideo(file);
+      const formData = new FormData();
+      formData.append("video", file);
+      // setValue("inputVideoPath", zipedVideo);
+      console.log(formData.get("video"));
     }
   };
 
@@ -128,11 +127,11 @@ const FormContent = ({
 
   const handleSizeClick = (e: any, optionName: string, size: string) => {
     e.preventDefault();
-    const input = document.querySelector(`#${optionName}`);
+    const input = document.querySelector(`#${optionName}`) as HTMLInputElement;
     const label = document.querySelector(`label[for=${optionName}]`);
-    if (label && label.textContent && input) {
+    if (label) {
       label.textContent = optionName;
-      setValue(`modelTranscription`, label.textContent + " " + size);
+      setValue("modelTranscription", label.textContent + " " + size);
       label.textContent =
         label.textContent.charAt(0).toUpperCase() +
         label.textContent.slice(1) +
@@ -150,32 +149,28 @@ const FormContent = ({
       const button = document.querySelector("#whisper");
       if (divPopover && button) {
         if (!divPopover.contains(e.target) && !button.contains(e.target)) {
-          const input = document.querySelector(`#whisper`);
+          const input = document.querySelector(`#whisper`) as HTMLInputElement;
           input.checked = false;
-          setValue(`modelTranscription`, null);
+          setValue("modelTranscription", null);
           setWhisperPop(false);
         }
       }
     }
   });
 
-  const handleClearOption = (register: "inputVideoUrl" | "inputVideoPath") => {
-    clearErrors(register);
-  };
-
   useEffect(() => {
     if (errors.inputVideoUrl) {
-      toast.error(errors["inputVideoUrl"].message);
+      toast.error(errors["inputVideoUrl"].message as Message);
     } else if (errors.inputVideoPath) {
-      toast.error(errors["inputVideoPath"].message);
+      toast.error(errors["inputVideoPath"].message as Message);
     } else if (errors.modelTranscription) {
-      toast.error(errors["modelTranscription"].message);
+      toast.error(errors["modelTranscription"].message as Message);
     } else if (errors.modelAi) {
-      toast.error(errors["modelAi"].message);
+      toast.error(errors["modelAi"].message as Message);
     } else if (errors.textProcessingOption) {
-      toast.error(errors["textProcessingOption"].message);
+      toast.error(errors["textProcessingOption"].message as Message);
     } else if (errors.aiKey) {
-      toast.error(errors["aiKey"].message);
+      toast.error(errors["aiKey"].message as Message);
     }
   }, [errors]);
 
@@ -188,19 +183,15 @@ const FormContent = ({
             type="text"
             placeholder={`Enter ${option}`}
             className={option === "upload" ? "input disable" : "input"}
-            onChange={(e) => {
-              handleClearOption("inputVideoUrl");
-            }}
           />
           <input
             {...register("inputVideoPath")}
             className={option === "url" ? "input disable" : "input"}
             placeholder=""
             type="file"
-            accept=".mp4, .avi, .mov, .mkv, .wmv, .flv"
+            accept=".webm, .wav, .mpeg, .mp4, .mp3, .m4a"
             onChange={(e) => {
-              handleClearOption("inputVideoPath");
-              handleFileChange(e);
+              handleUploadVideo(e);
             }}
           />
           {option === "upload" && (
@@ -286,10 +277,6 @@ const FormContent = ({
             type="text"
             placeholder={`Enter ${option}`}
             className="input"
-            onChange={(e) => {
-              handleClearOption("inputVideoUrl");
-              handleFileChange(e);
-            }}
           />
         </div>
         <hr className="horizontal-line" />
