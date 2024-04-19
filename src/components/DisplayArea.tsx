@@ -7,27 +7,29 @@ import { AppConfig } from "../types/config-type";
 import "./DisplayArea.css";
 
 const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
-  const newConfig = appConfig;
-  console.log(newConfig);
+  // console.log(newConfig?.inputValueVideo.get("video"));
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: [newConfig],
-    queryFn: () => (newConfig ? getTextProcessing(newConfig) : null),
+  const queryFn = () => (appConfig ? getTextProcessing(appConfig) : null);
+
+  const { data, isLoading, error, isSuccess } = useQuery({
+    queryKey: [appConfig],
+    queryFn: queryFn,
     staleTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
-    //refetchOnMount: false,
-    //retryOnMount: false,
   });
 
   // toast.loading(JSON.stringify(error.message));
   // onSuccess no useQuery
   useEffect(() => {
     toast.remove();
+    if (isSuccess && data) {
+      toast.success(data.message);
+    }
     if (error) {
       toast.error(error.message);
     }
-  }, [error, newConfig]);
+  }, [error, appConfig, isSuccess]);
 
   if (isLoading) {
     return (

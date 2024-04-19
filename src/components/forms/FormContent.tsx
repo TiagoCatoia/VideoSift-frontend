@@ -78,17 +78,11 @@ const FormContent = ({
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       console.log("Form submitted:", data);
-      const newId = crypto.randomUUID();
-
-      console.log(data.inputVideoPath[0]);
       const formData = new FormData();
-      formData.append("video", data.inputVideoPath[0]);
-      console.log(formData.get("video"));
+      formData.append("file", data.inputVideoPath[0]);
 
       const newConfig = {
-        id: newId,
-        inputValueVideo:
-          option === "url" ? data.inputVideoUrl : data.inputVideoPath,
+        inputValueVideo: option === "url" ? data.inputVideoUrl : formData,
         selectedAiModels: data.modelAi,
         selectedTranscriptionModels: data.modelTranscription,
         textProcessingOption: data.textProcessingOption,
@@ -107,14 +101,11 @@ const FormContent = ({
     const fileInput = e.target.files;
     if (fileInput) {
       const file = fileInput[0];
-      console.log(fileInput);
-
       setSelectedFileName(file.name);
       // const zipedVideo = await zipVideo(file);
       const formData = new FormData();
       formData.append("video", file);
       // setValue("inputVideoPath", zipedVideo);
-      console.log(formData.get("video"));
     }
   };
 

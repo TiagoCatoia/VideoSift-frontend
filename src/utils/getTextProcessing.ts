@@ -1,26 +1,26 @@
 import axios from "axios";
 import { AppConfig } from "../types/config-type";
 
-export const getTextProcessing = async (newConfig: AppConfig) => {
+export const getTextProcessing = async (file: AppConfig) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
     const response = await fetch(
       "http://localhost:8000/summarize-video/upload",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newConfig),
+        body: file.inputValueVideo,
       }
     );
+
     if (!response.ok) {
-      throw new Error("Erro ao fazer upload do arquivo");
+      throw new Error("Não foi possível fazer o upload");
     }
     const data = await response.json();
     return data;
-    console.log(data);
   } catch (error) {
-    console.error("Erro:", error);
+    if (error) {
+      throw new Error(error.toString());
+    }
   }
 };
