@@ -7,6 +7,8 @@ import { AppConfig } from "../types/config-type";
 import "./DisplayArea.css";
 
 const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
+  console.log(appConfig);
+
   // console.log(newConfig?.inputValueVideo.get("video"));
 
   const queryFn = () => (appConfig ? getTextProcessing(appConfig) : null);
@@ -47,7 +49,7 @@ const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
         <textarea
           className="text-input"
           placeholder={
-            isLoading ? "Loading..." : "Your text will appear here..."
+            isLoading ? "Loading..." : "Your result will appear here..."
           }
           readOnly
           value={data ? JSON.stringify(data) : ""}
