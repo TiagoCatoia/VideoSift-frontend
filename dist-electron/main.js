@@ -11,7 +11,7 @@ function createWindow() {
     // Largura da janela em pixels
     height: 700,
     // Altura da janela em pixels
-    resizable: false,
+    resizable: true,
     // Impede o redimensionamento da janela
     autoHideMenuBar: true,
     // Oculta a barra de menus

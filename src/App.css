@@ -1,6 +1,7 @@
 * {
   margin: 0%;
   padding: 0%;
+  overflow: hidden;
 }
 
 :root {
@@ -22,8 +23,11 @@ body {
   background-color: var(--background);
 }
 
+#root {
+  overflow-y: scroll;
+}
+
 .main-content-container {
-  min-height: 80%;
   color: var(--black);
   background-color: var(--background);
   display: flex;

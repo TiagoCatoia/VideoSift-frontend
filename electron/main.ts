@@ -23,7 +23,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1000, // Largura da janela em pixels
     height: 700, // Altura da janela em pixels
-    resizable: false, // Impede o redimensionamento da janela
+    resizable: true, // Impede o redimensionamento da janela
     autoHideMenuBar: true, // Oculta a barra de menus
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {

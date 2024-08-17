@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
-import { AppConfig } from "../../types/config-type";
-import { Message, SubmitHandler, set, useForm } from "react-hook-form";
+import { Message, SubmitHandler, useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PopoverSizes from "../ui/PopoverSizes";
-import { zipVideo } from "../../utils/zipVideo";
-import { file } from "jszip";
 
 import "./Forms.css";
 
 const urlSchema = z.object({
   inputVideoPath: z.optional(z.any()),
-  video_url: z
+  inputVideoUrl: z
     .string()
     .refine(
       (url) =>
@@ -23,45 +20,45 @@ const urlSchema = z.object({
         message: "Please enter a valid YouTube video URL",
       }
     ),
-  api_token: z
-    .string()
-    .refine((key) => key.length > 0, "API key is required for authentication"),
   whisper_size: z.any().refine((file) => file !== null, {
     message: "Transcription model is required",
   }),
-  llm_model: z.any().refine((file) => file !== null, {
+  modelAi: z.any().refine((file) => file !== null, {
     message: "Ai model is required",
   }),
   textProcessingOption: z.any().refine((file) => file !== null, {
     message: "Text processing option is required",
   }),
+  aiKey: z
+    .string()
+    .refine((key) => key.length > 0, "API key is required for authentication"),
 });
 
 const fileSchema = z.object({
-  video_url: z.optional(z.any()),
+  inputVideoUrl: z.optional(z.any()),
   inputVideoPath: z
     .any()
-    .refine((file) => (file ? file.length > 0 : ""), "Video path is required"),
-  api_token: z
-    .string()
-    .refine((key) => key.length > 0, "API key is required for authentication"),
+    .refine((file) => file.length > 0, "Video path is required"),
   whisper_size: z.any().refine((file) => file !== null, {
     message: "Transcription model is required",
   }),
-  llm_model: z.any().refine((file) => file !== null, {
+  modelAi: z.any().refine((file) => file !== null, {
     message: "Ai model is required",
   }),
   textProcessingOption: z.any().refine((file) => file !== null, {
     message: "Text processing option is required",
   }),
+  aiKey: z
+    .string()
+    .refine((key) => key.length > 0, "API key is required for authentication"),
 });
 
 const FormContent = ({
   option,
-  updateAppConfigValue,
+  setFormData,
 }: {
   option: string;
-  updateAppConfigValue: (newConfig: AppConfig) => void;
+  setFormData: (formData: FormData) => void;
 }) => {
   const [whisperPop, setWhisperPop] = useState(false);
 
@@ -79,17 +76,13 @@ const FormContent = ({
     try {
       console.log("Form submitted:", data);
       const formData = new FormData();
-      formData.append("file", data.inputVideoPath[0]);
-
-      const newConfig = {
-        video_url: option === "url" ? data.video_url : formData,
-        llm_model: data.llm_model,
-        whisper_size: data.whisper_size,
-        textProcessingOption: data.textProcessingOption,
-        api_token: data.api_token,
-      };
-      updateAppConfigValue(newConfig);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (option === "url") formData.append("video_url", data.inputVideoUrl);
+      if (option === "upload") formData.append("file", data.inputVideoPath[0]);
+      formData.append("api_token", data.aiKey);
+      formData.append("whisper_size", data.whisper_size);
+      formData.append("llm_model", data.modelAi);
+      // textProcessingOption: data.textProcessingOption,
+      setFormData(formData);
     } catch (error) {
       console.log(error);
     }
@@ -102,10 +95,8 @@ const FormContent = ({
     if (fileInput) {
       const file = fileInput[0];
       setSelectedFileName(file.name);
-      // const zipedVideo = await zipVideo(file);
       const formData = new FormData();
       formData.append("video", file);
-      // setValue("inputVideoPath", zipedVideo);
     }
   };
 
@@ -122,7 +113,7 @@ const FormContent = ({
     const label = document.querySelector(`label[for=${optionName}]`);
     if (label) {
       label.textContent = optionName;
-      setValue("whisper_size", label.textContent + " " + size);
+      setValue("whisper_size", size);
       label.textContent =
         label.textContent.charAt(0).toUpperCase() +
         label.textContent.slice(1) +
@@ -141,31 +132,27 @@ const FormContent = ({
       if (divPopover && button) {
         if (!divPopover.contains(e.target) && !button.contains(e.target)) {
           const input = document.querySelector(`#whisper`) as HTMLInputElement;
-          const label = document.querySelector(`label[for=whisper]`);
           input.checked = false;
           setValue("whisper_size", null);
           setWhisperPop(false);
-          if (label) {
-            label.textContent = "Whisper";
-          }
         }
       }
     }
   });
 
   useEffect(() => {
-    if (errors.video_url) {
-      toast.error(errors["video_url"].message as Message);
+    if (errors.inputVideoUrl) {
+      toast.error(errors["inputVideoUrl"].message as Message);
     } else if (errors.inputVideoPath) {
       toast.error(errors["inputVideoPath"].message as Message);
     } else if (errors.whisper_size) {
       toast.error(errors["whisper_size"].message as Message);
-    } else if (errors.llm_model) {
-      toast.error(errors["llm_model"].message as Message);
+    } else if (errors.modelAi) {
+      toast.error(errors["modelAi"].message as Message);
     } else if (errors.textProcessingOption) {
       toast.error(errors["textProcessingOption"].message as Message);
-    } else if (errors.api_token) {
-      toast.error(errors["api_token"].message as Message);
+    } else if (errors.aiKey) {
+      toast.error(errors["aiKey"].message as Message);
     }
   }, [errors]);
 
@@ -174,7 +161,7 @@ const FormContent = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={`input-container ${option}`}>
           <input
-            {...register("video_url")}
+            {...register("inputVideoUrl")}
             type="text"
             placeholder={`Enter ${option}`}
             className={option === "upload" ? "input disable" : "input"}
@@ -227,7 +214,7 @@ const FormContent = ({
           <h4>AI Model</h4>
           <div className="ai-options dropdown">
             <input
-              {...register("llm_model")}
+              {...register("modelAi")}
               className="option"
               type="radio"
               id="gpt3"
@@ -235,7 +222,7 @@ const FormContent = ({
             ></input>
             <label htmlFor="gpt3">GPT-3</label>
             <input
-              {...register("llm_model")}
+              {...register("modelAi")}
               className="option"
               type="radio"
               id="gemini"
@@ -266,9 +253,9 @@ const FormContent = ({
         </div>
         <hr className="horizontal-line" />
         <h3>AI KEY</h3>
-        <div className={`input-container url`}>
+        <div className={`input-container key`}>
           <input
-            {...register("api_token")}
+            {...register("aiKey")}
             type="text"
             placeholder={`Enter key`}
             className="input"

@@ -1,43 +1,39 @@
-import { useContext, useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
 import { getTextProcessing } from "../utils/getTextProcessing";
-import { AppConfig } from "../types/config-type";
-
+import { marked } from "marked";
 import "./DisplayArea.css";
 
-const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
-  console.log(appConfig);
+const DisplayArea = ({ formData }: { formData: FormData | undefined }) => {
+  const [loadingStatus, setLoadingStatus] = useState<any>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
 
-  // console.log(newConfig?.inputValueVideo.get("video"));
-
-  const queryFn = () => (appConfig ? getTextProcessing(appConfig) : null);
-
-  const { data, isLoading, error, isSuccess } = useQuery({
-    queryKey: [appConfig],
-    queryFn: queryFn,
-    staleTime: 0,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-
-  // toast.loading(JSON.stringify(error.message));
-  // onSuccess no useQuery
   useEffect(() => {
-    toast.remove();
-    if (isSuccess && data) {
-      toast.success(data.message);
-    }
-    if (error) {
-      toast.error(error.message);
-    }
-  }, [error, appConfig, isSuccess]);
+    const fetchData = async () => {
+      if (formData) {
+        setIsLoading(true);
+        try {
+          let result = await getTextProcessing(formData, setLoadingStatus);
+          console.log(result);
+          setIsLoading(false);
+          setData(marked(result.summary));
+        } catch (error: any) {
+          console.log(error);
+          setIsLoading(false);
+          toast.error(error.message);
+        }
+      }
+    };
+    fetchData();
+  }, [formData]);
 
   if (isLoading) {
     return (
       <div className="display-area-container">
-        <div className="text-input-container">
+        <div className="loader-container">
           <div className="loader"></div>
+          <p>{loadingStatus || ""}</p>
         </div>
       </div>
     );
@@ -46,14 +42,12 @@ const DisplayArea = ({ appConfig }: { appConfig: AppConfig | undefined }) => {
   return (
     <div className="display-area-container">
       <div className="text-input-container">
-        <textarea
+        <div
           className="text-input"
-          placeholder={
-            isLoading ? "Loading..." : "Your result will appear here..."
-          }
-          readOnly
-          value={data ? JSON.stringify(data) : ""}
-        ></textarea>
+          dangerouslySetInnerHTML={{
+            __html: data || "The text will appear here...",
+          }}
+        ></div>
       </div>
       <Toaster position="bottom-right" />
     </div>

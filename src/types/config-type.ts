@@ -1,13 +1,8 @@
 export type AppConfig = {
-  video_url: string;
-  api_token: string;
-  whisper_size: string;
+  file?: FormData;
+  video_url?: string;
   llm_model: string;
+  whisper_size: string;
+  // text_processing_option: string;
+  api_token: string;
 };
-// export type AppConfig = {
-//   inputValueVideo: FormData | string;
-//   selectedAiModels: string;
-//   selectedTranscriptionModels: string;
-//   textProcessingOption: string;
-//   inputValueKey: string;
-// };

@@ -1,23 +1,32 @@
-import axios from "axios";
-import { AppConfig } from "../types/config-type";
-
-export const getTextProcessing = async (file: AppConfig) => {
+export const getTextProcessing = async (
+  formData: FormData,
+  setLoadingStatus: any
+) => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const response = await fetch("http://localhost:8000/summarize-video/", {
+    const response = await fetch("http://localhost:8800/summarize-video/", {
       method: "POST",
-      body: file.inputValueVideo,
+      body: formData,
+      headers: {
+        Accept: "text/event-stream",
+      },
     });
 
-    if (!response.ok) {
-      throw new Error("It wasn't possible to upload the file");
+    if (!response.ok || !response.body) throw new Error("Failed to fetch data");
+
+    const reader = response.body
+      .pipeThrough(new TextDecoderStream())
+      .getReader();
+
+    let parsedResponse;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      parsedResponse = JSON.parse(value);
+      setLoadingStatus(parsedResponse.status);
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    if (error) {
-      throw new Error(error.toString());
-    }
+    return parsedResponse;
+  } catch (error: any) {
+    console.error("Error:", error);
+    throw new Error(error.toString());
   }
 };
