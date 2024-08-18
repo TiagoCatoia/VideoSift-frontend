@@ -9,8 +9,12 @@ function createWindow() {
   win = new electron.BrowserWindow({
     width: 1e3,
     // Largura da janela em pixels
+    minWidth: 720,
+    // Largura mínima
     height: 700,
     // Altura da janela em pixels
+    minHeight: 200,
+    // Altura mínima
     resizable: true,
     // Impede o redimensionamento da janela
     autoHideMenuBar: true,

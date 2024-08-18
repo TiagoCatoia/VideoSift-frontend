@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { getTextProcessing } from "../utils/getTextProcessing";
 import { marked } from "marked";
-import "./DisplayArea.css";
+import "./ResultViewer.css";
 
-const DisplayArea = ({ formData }: { formData: FormData | undefined }) => {
+const ResultViewer = ({ formData }: { formData: FormData | undefined }) => {
   const [loadingStatus, setLoadingStatus] = useState<any>("");
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any>(null);
@@ -30,7 +30,7 @@ const DisplayArea = ({ formData }: { formData: FormData | undefined }) => {
 
   if (isLoading) {
     return (
-      <div className="display-area-container">
+      <div className="result-viewer-container">
         <div className="loader-container">
           <div className="loader"></div>
           <p>{loadingStatus || ""}</p>
@@ -40,7 +40,7 @@ const DisplayArea = ({ formData }: { formData: FormData | undefined }) => {
   }
 
   return (
-    <div className="display-area-container">
+    <div className="result-viewer-container">
       <div className="text-input-container">
         <div
           className="text-input"
@@ -49,9 +49,8 @@ const DisplayArea = ({ formData }: { formData: FormData | undefined }) => {
           }}
         ></div>
       </div>
-      <Toaster position="bottom-right" />
     </div>
   );
 };
 
-export default DisplayArea;
+export default ResultViewer;

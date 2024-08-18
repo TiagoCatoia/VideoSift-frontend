@@ -21,13 +21,13 @@ const FormRoot = ({
       <div className="forms-root-container">
         <div className="video-options">
           <div onClick={() => handleOptionClick("url")}>
-            <button className="btn-option">
+            <button className="btn-option-format-video">
               <IoIosLink />
               URL
             </button>
           </div>
           <div onClick={() => handleOptionClick("upload")}>
-            <button className="btn-option">
+            <button className="btn-option-format-video">
               <ImUpload2 />
               Upload Video
             </button>

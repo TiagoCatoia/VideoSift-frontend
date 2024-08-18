@@ -1,8 +1,9 @@
 import { useState } from "react";
 
 import Header from "./components/Header";
-import DisplayArea from "./components/DisplayArea";
+import ResultViewer from "./components/ResultViewer";
 import { Forms } from "./components/forms";
+import { Toaster } from "react-hot-toast";
 
 import "./App.css";
 
@@ -14,8 +15,19 @@ function App() {
       <Header />
       <div className="main-content-container">
         <Forms.FormRoot setFormData={setFormData} />
-        <DisplayArea formData={formData} />
+        <ResultViewer formData={formData} />
       </div>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            boxShadow: "none",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "#fff",
+            borderRadius: "8px",
+          },
+        }}
+      />
     </>
   );
 }

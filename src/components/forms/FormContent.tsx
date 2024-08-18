@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { Message, SubmitHandler, useForm } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PopoverSizes from "../ui/PopoverSizes";
 
 import "./Forms.css";
 
 const urlSchema = z.object({
-  inputVideoPath: z.optional(z.any()),
-  inputVideoUrl: z
+  file: z.optional(z.any()),
+  video_url: z
     .string()
     .refine(
       (url) =>
@@ -20,37 +19,40 @@ const urlSchema = z.object({
         message: "Please enter a valid YouTube video URL",
       }
     ),
-  whisper_size: z.any().refine((file) => file !== null, {
+  whisper_size: z.any().refine((file) => file !== "", {
     message: "Transcription model is required",
   }),
-  modelAi: z.any().refine((file) => file !== null, {
-    message: "Ai model is required",
+  llm_model: z.any().refine((file) => file !== "", {
+    message: "AI model is required",
   }),
-  textProcessingOption: z.any().refine((file) => file !== null, {
+  text_processing_option: z.any().refine((file) => file !== "", {
     message: "Text processing option is required",
   }),
-  aiKey: z
+  api_token: z
     .string()
-    .refine((key) => key.length > 0, "API key is required for authentication"),
+    .refine((key) => key.length > 0, "AI key is required for authentication"),
 });
 
 const fileSchema = z.object({
-  inputVideoUrl: z.optional(z.any()),
-  inputVideoPath: z
+  video_url: z.optional(z.any()),
+  file: z
     .any()
-    .refine((file) => file.length > 0, "Video path is required"),
-  whisper_size: z.any().refine((file) => file !== null, {
+    .refine(
+      (file) => file.length > 0,
+      "Video file is required. Please select a file"
+    ),
+  whisper_size: z.any().refine((file) => file !== "", {
     message: "Transcription model is required",
   }),
-  modelAi: z.any().refine((file) => file !== null, {
-    message: "Ai model is required",
+  llm_model: z.any().refine((file) => file !== "", {
+    message: "AI model is required",
   }),
-  textProcessingOption: z.any().refine((file) => file !== null, {
+  text_processing_option: z.any().refine((file) => file !== "", {
     message: "Text processing option is required",
   }),
-  aiKey: z
+  api_token: z
     .string()
-    .refine((key) => key.length > 0, "API key is required for authentication"),
+    .refine((key) => key.length > 0, "AI key is required for authentication"),
 });
 
 const FormContent = ({
@@ -60,14 +62,11 @@ const FormContent = ({
   option: string;
   setFormData: (formData: FormData) => void;
 }) => {
-  const [whisperPop, setWhisperPop] = useState(false);
-
   const schema = option === "url" ? urlSchema : fileSchema;
   type FormFields = z.infer<typeof schema>;
 
   const {
     register,
-    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({ resolver: zodResolver(schema) });
@@ -76,12 +75,12 @@ const FormContent = ({
     try {
       console.log("Form submitted:", data);
       const formData = new FormData();
-      if (option === "url") formData.append("video_url", data.inputVideoUrl);
-      if (option === "upload") formData.append("file", data.inputVideoPath[0]);
-      formData.append("api_token", data.aiKey);
+      if (option === "url") formData.append("video_url", data.video_url);
+      if (option === "upload") formData.append("file", data.file[0]);
+      formData.append("api_token", data.api_token);
       formData.append("whisper_size", data.whisper_size);
-      formData.append("llm_model", data.modelAi);
-      // textProcessingOption: data.textProcessingOption,
+      formData.append("llm_model", data.llm_model);
+      // text_processing_option: data.text_processing_option,
       setFormData(formData);
     } catch (error) {
       console.log(error);
@@ -100,59 +99,19 @@ const FormContent = ({
     }
   };
 
-  const handleOpenPopover = (e: any, ref: string) => {
-    if (ref === "whisper") {
-      e.preventDefault();
-      setWhisperPop(!whisperPop);
-    }
-  };
-
-  const handleSizeClick = (e: any, optionName: string, size: string) => {
-    e.preventDefault();
-    const input = document.querySelector(`#${optionName}`) as HTMLInputElement;
-    const label = document.querySelector(`label[for=${optionName}]`);
-    if (label) {
-      label.textContent = optionName;
-      setValue("whisper_size", size);
-      label.textContent =
-        label.textContent.charAt(0).toUpperCase() +
-        label.textContent.slice(1) +
-        ` ${size}`;
-      input.checked = true;
-    }
-    if (optionName === "whisper") {
-      setWhisperPop(false);
-    }
-  };
-
-  document.addEventListener("click", (e: any) => {
-    if (whisperPop) {
-      const divPopover = document.querySelector(".popover-container");
-      const button = document.querySelector("#whisper");
-      if (divPopover && button) {
-        if (!divPopover.contains(e.target) && !button.contains(e.target)) {
-          const input = document.querySelector(`#whisper`) as HTMLInputElement;
-          input.checked = false;
-          setValue("whisper_size", null);
-          setWhisperPop(false);
-        }
-      }
-    }
-  });
-
   useEffect(() => {
-    if (errors.inputVideoUrl) {
-      toast.error(errors["inputVideoUrl"].message as Message);
-    } else if (errors.inputVideoPath) {
-      toast.error(errors["inputVideoPath"].message as Message);
+    if (errors.video_url) {
+      toast.error(errors["video_url"].message as Message);
+    } else if (errors.file) {
+      toast.error(errors["file"].message as Message);
     } else if (errors.whisper_size) {
       toast.error(errors["whisper_size"].message as Message);
-    } else if (errors.modelAi) {
-      toast.error(errors["modelAi"].message as Message);
-    } else if (errors.textProcessingOption) {
-      toast.error(errors["textProcessingOption"].message as Message);
-    } else if (errors.aiKey) {
-      toast.error(errors["aiKey"].message as Message);
+    } else if (errors.llm_model) {
+      toast.error(errors["llm_model"].message as Message);
+    } else if (errors.text_processing_option) {
+      toast.error(errors["text_processing_option"].message as Message);
+    } else if (errors.api_token) {
+      toast.error(errors["api_token"].message as Message);
     }
   }, [errors]);
 
@@ -161,13 +120,13 @@ const FormContent = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={`input-container ${option}`}>
           <input
-            {...register("inputVideoUrl")}
+            {...register("video_url")}
             type="text"
-            placeholder={`Enter ${option}`}
+            placeholder={`Paste Youtube Video URL here`}
             className={option === "upload" ? "input disable" : "input"}
           />
           <input
-            {...register("inputVideoPath")}
+            {...register("file")}
             className={option === "url" ? "input disable" : "input"}
             placeholder=""
             type="file"
@@ -185,79 +144,63 @@ const FormContent = ({
         <div className="transcription-ia-container">
           <hr className="horizontal-line" />
           <h4>Type Transcription</h4>
-          <div className="transcription-options dropdown">
-            <input
+          <div className="transcription-options">
+            <select
               {...register("whisper_size")}
-              className={`${whisperPop ? "option" : "hidden"}`}
-              type="radio"
               id="whisper"
-              value="whisper"
-              onClick={(e) => handleOpenPopover(e, "whisper")}
-            ></input>
-            <label htmlFor="whisper">Whisper</label>
-            {whisperPop && (
-              <PopoverSizes
-                option="whisper"
-                sizes={[
-                  "tiny",
-                  "base",
-                  "small",
-                  "medium",
-                  "large-v1",
-                  "large-v2",
-                ]}
-                onClick={handleSizeClick}
-              />
-            )}
+              className="btn-select"
+              defaultValue=""
+            >
+              <option value="" disabled hidden>
+                Select a size
+              </option>
+              <option value="tiny">Whisper Tiny</option>
+              <option value="small">Whisper Small</option>
+              <option value="medium">Whisper Medium</option>
+              <option value="large-v1">Whisper Large V1</option>
+              <option value="large-v2">Whisper Large V2</option>
+            </select>
           </div>
           <hr className="horizontal-line" />
           <h4>AI Model</h4>
-          <div className="ai-options dropdown">
-            <input
-              {...register("modelAi")}
-              className="option"
-              type="radio"
-              id="gpt3"
-              value="gpt3"
-            ></input>
-            <label htmlFor="gpt3">GPT-3</label>
-            <input
-              {...register("modelAi")}
-              className="option"
-              type="radio"
-              id="gemini"
-              value="gemini"
-            ></input>
-            <label htmlFor="gemini">Gemini</label>
+          <div className="ai-options">
+            <select
+              {...register("llm_model")}
+              className="btn-select"
+              id="llm_model"
+              defaultValue=""
+            >
+              <option value="" disabled hidden>
+                Select a model
+              </option>
+              <option value="gpt3">GPT-3</option>
+              <option value="gemini">Gemini</option>
+            </select>
           </div>
           <hr className="horizontal-line" />
           <h4>Text processing option</h4>
           <div className="text-processing-options">
-            <input
-              {...register("textProcessingOption")}
-              className="option"
-              type="radio"
-              id="summarizing"
-              value="summarizing"
-            ></input>
-            <label htmlFor="summarizing">Summarizing</label>
-            <input
-              {...register("textProcessingOption")}
-              className="option"
-              type="radio"
-              id="classifying"
-              value="classifying"
-            ></input>
-            <label htmlFor="classifying">Classifying</label>
+            <select
+              {...register("text_processing_option")}
+              className="btn-select"
+              id="text_processing_option"
+              defaultValue=""
+            >
+              <option value="" disabled hidden>
+                Select a processing option
+              </option>
+              <option value="summarizing">Summarizing</option>
+              <option value="classifying">Classifying</option>
+            </select>
           </div>
         </div>
         <hr className="horizontal-line" />
         <h3>AI KEY</h3>
         <div className={`input-container key`}>
           <input
-            {...register("aiKey")}
+            {...register("api_token")}
             type="text"
-            placeholder={`Enter key`}
+            placeholder={`Paste your respective AI Model key`}
             className="input"
           />
         </div>
@@ -265,9 +208,7 @@ const FormContent = ({
         <button className="btn-submit" disabled={isSubmitting} type="submit">
           {isSubmitting ? "Loading" : "Submit"}
         </button>
-        <Toaster position="bottom-right" />
       </form>
-      {whisperPop ? <div className="dark-fitler"></div> : ""}
     </>
   );
 };

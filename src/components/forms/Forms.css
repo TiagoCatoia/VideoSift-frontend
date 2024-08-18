@@ -1,4 +1,4 @@
-/* FormRoot */
+/* FormRoot & Select Btn */
 .forms-root-container {
   color: var(--black);
   width: 49%;
@@ -22,7 +22,8 @@
   color: var(--black);
 }
 
-.btn-option {
+.btn-option-format-video,
+.btn-select {
   min-height: 2.5rem;
   width: 10rem;
   border: 0;
@@ -36,11 +37,17 @@
   align-items: center;
   margin: 0.3rem;
   outline: 0;
+  text-align: center;
 }
 
-.btn-option:hover {
+.btn-option-format-video:hover,
+.btn-select:hover {
   background-color: var(--background-hover);
   cursor: pointer;
+}
+
+.btn-select option {
+  text-align: center;
 }
 
 /* FormContent */
@@ -96,8 +103,7 @@ span {
 }
 
 .input[type="text"] {
-  width: 100%;
-  min-height: 1.9rem;
+  min-height: 2rem;
   outline: none;
   border: 0;
   border-radius: 0.3rem;
@@ -105,10 +111,6 @@ span {
   text-align: center;
   background-color: var(--background);
   transition: all 0.3s ease;
-}
-
-.input[type="text"]::placeholder {
-  color: var(--placeholder);
 }
 
 .url:hover,
@@ -143,49 +145,6 @@ span {
   outline: 0;
 }
 
-/* Input Radio */
-.dropdown {
-  display: inline-block;
-}
-
-input[type="radio"] {
-  display: none;
-}
-
-input[type="radio"] + label {
-  min-height: 2.5rem;
-  width: 10rem;
-  border: 0;
-  border-radius: 0.3rem;
-  background-color: white;
-  color: var(--gray);
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0.3rem;
-  outline: 0;
-}
-
-input[type="radio"] + label:hover {
-  border-radius: 0.3rem;
-  background-color: var(--background-hover);
-  color: var(--black);
-  cursor: pointer;
-  transform: translateY(-0.2rem);
-  box-shadow: 0 0.3rem 0.3rem -0.3rem var(--black);
-}
-
-input[type="radio"]:checked + label {
-  background-color: var(--blue-light);
-  color: white;
-}
-
-input[type="radio"]:checked + label:hover {
-  background-color: var(--blue-dark);
-}
-
 .transcription-ia-container {
   min-height: 10rem;
   width: 100%;
@@ -196,18 +155,7 @@ input[type="radio"]:checked + label:hover {
   font-size: 1.2rem;
 }
 
-.transcription-options,
-.ai-options,
-.text-processing-options {
-  text-align: center;
-  width: 100%;
-  border-radius: 0.3rem;
-  display: flex;
-  justify-content: space-evenly;
-  position: relative;
-}
-
-/* Button */
+/* Button Submit */
 .btn-submit {
   min-height: 2.5rem;
   width: 10rem;
@@ -217,9 +165,6 @@ input[type="radio"]:checked + label:hover {
   color: white;
   transition: all 0.3s ease;
   font-size: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin: 0.3rem;
   outline: 0;
 }
