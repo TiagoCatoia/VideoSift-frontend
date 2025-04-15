@@ -1,0 +1,59 @@
+name: Lint, Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for Windows
+        env:
+          GH_TOKEN: ${{ secrets.VIDEOSIFT_KEY }}
+        run: npm run build -- --win
+
+      - name: Zip Windows build
+        run: |
+          mkdir -p build
+          Compress-Archive -Path release\* -DestinationPath build\windows-build.zip
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: build/*.zip
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.VIDEOSIFT_KEY }}
